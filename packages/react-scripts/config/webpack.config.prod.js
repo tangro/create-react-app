@@ -175,6 +175,11 @@ module.exports = {
         loader: ExtractTextPlugin.extract('style', 'css?importLoaders=1!postcss')
         // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
       },
+      {
+          test: /\.(sass|scss)$/,
+          include: [paths.appSrc,paths.appNodeModules],
+          loaders: ["style", "css", "sass"]
+      },
       // JSON is not enabled by default in Webpack but both Node and Browserify
       // allow it implicitly so we also enable it.
       {

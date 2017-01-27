@@ -22,12 +22,17 @@ module.exports = function(appPath, appName, verbose, originalDirectory, template
   appPackage.dependencies = appPackage.dependencies || {};
   appPackage.devDependencies = appPackage.devDependencies || {};
 
+  // ensure our installer dependencies are there
+  appPackage.dependencies = Object.assign({}, appPackage.dependencies, { "ini": "^1.3.4", "express": "^4.14.0" });
+  appPackage.optDependencies = { "node-windows": "^0.1.11" };
+
   // Setup the script rules
   appPackage.scripts = {
     'start': 'react-scripts start',
     'build': 'react-scripts build',
     'test': 'react-scripts test --env=jsdom',
-    'eject': 'react-scripts eject'
+    'eject': 'react-scripts eject',
+    'buildinstaller': 'helper buildinstaller'
   };
 
   fs.writeFileSync(
@@ -122,6 +127,9 @@ module.exports = function(appPath, appName, verbose, originalDirectory, template
     console.log();
     console.log(chalk.cyan('  ' + command + ' run build'));
     console.log('    Bundles the app into static files for production.');
+    console.log();
+    console.log(chalk.cyan('  ' + command + ' run buildinstaller'));
+    console.log('    Bundles the result of "' + command + ' run build" in an installer.');
     console.log();
     console.log(chalk.cyan('  ' + command + ' test'));
     console.log('    Starts the test runner.');

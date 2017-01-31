@@ -69,6 +69,18 @@ module.exports = function(appPath, appName, verbose, originalDirectory, template
     }
   });
 
+  // rename according to appName
+  fs.move(path.join(appPath, 'react-app.nsi'), path.join(appPath, appName + '.nsi'), function(err) {
+    if (err) {
+      console.error(err);
+    }
+  });
+  fs.writeFileSync(path.join(appPath, 'serviceConfig.ini'), fs.readFileSync(path.join(appPath, 'serviceConfig.ini'),'utf8')
+      .split('\n')
+      .map( function(line) { return line.replace('react-app', appName); })
+      .join('\n')
+  );
+
   // Run yarn or npm for react and react-dom
   // TODO: having to do two npm/yarn installs is bad, can we avoid it?
   var command;

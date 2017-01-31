@@ -5,19 +5,20 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 
-import 'bootstrap/dist/css/bootstrap.scss';
-import 'font-awesome/css/font-awesome.css';
+import 'bootstrap/scss/bootstrap.scss';
+import 'font-awesome/scss/font-awesome.scss';
 
 import App from './App';
 import './index.scss';
 
-import reducers from './store/reducers';
+// import reducers from './store/reducers';
 
-import { requireAuthentication, Login } from './login/authentication';
+// import { requireAuthentication, Login } from './login/authentication';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)));
+// const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)));
 
+/*
 ReactDOM.render(
     <Provider store={store}>
       <Router history={browserHistory}>
@@ -25,5 +26,13 @@ ReactDOM.render(
         <Route path='/' component={App} onEnter={requireAuthentication}/>
       </Router>
     </Provider>,
+    document.getElementById('root')
+);
+*/
+
+ReactDOM.render(
+        <Router history={browserHistory}>
+            <Route path='/' component={App}/>
+        </Router>,
     document.getElementById('root')
 );

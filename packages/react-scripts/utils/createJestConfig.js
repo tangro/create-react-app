@@ -11,6 +11,7 @@
 
 const fs = require('fs');
 const paths = require('../config/paths');
+const path = require('path');
 
 module.exports = (resolve, rootDir, isEjecting) => {
   // Use this instead of `paths.testsSetup` to avoid putting
@@ -19,7 +20,7 @@ module.exports = (resolve, rootDir, isEjecting) => {
 
   // TODO: I don't know if it's safe or not to just use / as path separator
   // in Jest configs. We need help from somebody with Windows to determine this.
-  const config = {
+  let config = {
     collectCoverageFrom: ['src/**/*.{js,jsx}'],
     setupFiles: [resolve('config/polyfills.js')],
     setupTestFrameworkScriptFile: setupTestsFile,
@@ -42,6 +43,16 @@ module.exports = (resolve, rootDir, isEjecting) => {
       '^react-native$': 'react-native-web'
     }
   };
+
+  const customJestConfigFile = path.join(__dirname, '../../../jest.config.js');
+  if(fs.existsSync(customJestConfigFile)) {
+
+  const customConfig = require(customJestConfigFile);
+    if (customConfig.updateJestConfig) {
+      config = customConfig.updateJestConfig(config);
+    }
+  }
+
   if (rootDir) {
     config.rootDir = rootDir;
   }

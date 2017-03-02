@@ -11,8 +11,12 @@ root = true
 indent_style = space
 indent_size = 2
 
+# git with standard configuration should take care of line-ending conversion
+# and this setting forces windows editors to change the line-ending, so that
+# git status will think the file has been changed
+#end_of_line = lf
+
 # We recommend you to keep these unchanged
-end_of_line = lf
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true

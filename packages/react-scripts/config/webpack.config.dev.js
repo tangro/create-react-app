@@ -201,14 +201,22 @@ module.exports = {
           test: /\.(sass|scss)$/,
           include: [paths.appSrc,paths.appNodeModules],
           // loaders: ["style", "css", "sass"]
-          loader: ExtractTextPlugin.extract('style', 'css?importLoaders=1!sass')
+          loader: ExtractTextPlugin.extract({ fallback: 'style-loader',
+              use: [
+                  {
+                      loader: 'css-loader',
+                      options: {
+                          importLoaders: 1
+                      }
+                  }, { loader: 'sass-loader'}
+                  ]})
           // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
       },
       // JSON is not enabled by default in Webpack but both Node and Browserify
       // allow it implicitly so we also enable it.
       {
         test: /\.json$/,
-        loader: 'json'
+        loader: 'json-loader'
       },
       // "file" loader for svg
       {

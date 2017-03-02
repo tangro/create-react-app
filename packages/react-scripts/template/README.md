@@ -47,11 +47,16 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 
 Your project can consume variables declared in your environment as if they were declared locally in your JS files. By
 default you will have `NODE_ENV` defined for you, and any other environment variables starting with
-`REACT_APP_`. These environment variables will be defined for you on `process.env`. For example, having an environment
-variable named `REACT_APP_SECRET_CODE` will be exposed in your JS as `process.env.REACT_APP_SECRET_CODE`, in addition
-to `process.env.NODE_ENV`.
+`REACT_APP_`.
 
->Note: Changing any environment variables will require you to restart the development server if it is running.
+**The environment variables are embedded during the build time**. Since Create React App produces a static HTML/CSS/JS bundle, it can’t possibly read them at runtime. To read them at runtime, you would need to load HTML into memory on the server and replace placeholders in runtime, just like [described here](#injecting-data-from-the-server-into-the-page). Alternatively you can rebuild the app on the server anytime you change them.
+
+>Note: You must create custom environment variables beginning with `REACT_APP_`. Any other variables except `NODE_ENV` will be ignored to avoid accidentally [exposing a private key on the machine that could have the same name](https://github.com/facebookincubator/create-react-app/issues/865#issuecomment-252199527). Changing any environment variables will require you to restart the development server if it is running.
+
+These environment variables will be defined for you on `process.env`. For example, having an environment
+variable named `REACT_APP_SECRET_CODE` will be exposed in your JS as `process.env.REACT_APP_SECRET_CODE`.
+
+There is also a special built-in environment variable called `NODE_ENV`. You can read it from `process.env.NODE_ENV`. When you run `npm start`, it is always equal to `'development'`, when you run `npm test` it is always equal to `'test'`, and when you run `npm run build` to make a production bundle, it is always equal to `'production'`. **You cannot override `NODE_ENV` manually.** This prevents developers from accidentally deploying a slow development build to production.
 
 These environment variables can be useful for displaying information conditionally based on where the project is
 deployed or consuming sensitive data that lives outside of version control.
@@ -85,6 +90,10 @@ When you load the app in the browser and inspect the `<input>`, you will see its
 </div>
 ```
 
+The above form is looking for a variable called `REACT_APP_SECRET_CODE` from the environment. In order to consume this
+value, we need to have it defined in the environment. This can be done using two ways: either in your shell or in
+a `.env` file. Both of these ways are described in the next few sections.
+
 Having access to the `NODE_ENV` is also useful for performing actions conditionally:
 
 ```js
@@ -93,13 +102,26 @@ if (process.env.NODE_ENV !== 'production') {
 }
 ```
 
-The above form is looking for a variable called `REACT_APP_SECRET_CODE` from the environment. In order to consume this
-value, we need to have it defined in the environment. This can be done using two ways: either in your shell or in
-a `.env` file.
+When you compile the app with `npm run build`, the minification step will strip out this condition, and the resulting bundle will be smaller.
+
+### Referencing Environment Variables in the HTML
+
+>Note: this feature is available with `react-scripts@0.9.0` and higher.
+
+You can also access the environment variables starting with `REACT_APP_` in the `public/index.html`. For example:
+
+```html
+<title>%REACT_APP_WEBSITE_NAME%</title>
+```
+
+Note that the caveats from the above section apply:
+
+* Apart from a few built-in variables (`NODE_ENV` and `PUBLIC_URL`), variable names must start with `REACT_APP_` to work.
+* The environment variables are injected at build time. If you need to inject them at runtime, [follow this approach instead](#generating-dynamic-meta-tags-on-the-server).
 
 ### Adding Temporary Environment Variables In Your Shell
 
-Defining environment variables can vary between OSes. It's also important to know that this manner is temporary for the
+Defining environment variables can vary between OSes. It’s also important to know that this manner is temporary for the
 life of the shell session.
 
 #### Windows (cmd.exe)
@@ -110,7 +132,7 @@ set REACT_APP_SECRET_CODE=abcdef&&npm start
 
 (Note: the lack of whitespace is intentional.)
 
-#### Linux, OS X (Bash)
+#### Linux, macOS (Bash)
 
 ```bash
 REACT_APP_SECRET_CODE=abcdef npm start
@@ -163,7 +185,7 @@ Fetch API cannot load http://localhost:4000/api/todos. No 'Access-Control-Allow-
 
 Keep in mind that `proxy` only has effect in development (with `npm start`), and it is up to you to ensure that URLs like `/api/todos` point to the right thing in production. You don’t have to use the `/api` prefix. Any unrecognized request without a `text/html` accept header will be redirected to the specified `proxy`.
 
-Currently the `proxy` option only handles HTTP requests, and it won’t proxy WebSocket connections.<br>
+The `proxy` option supports HTTP, HTTPS and WebSocket connections.<br>
 If the `proxy` option is **not** flexible enough for you, alternatively you can:
 
 * Enable CORS on your server ([here’s how to do it for Express](http://enable-cors.org/server_expressjs.html)).
@@ -185,7 +207,7 @@ set HTTPS=true&&npm start
 
 (Note: the lack of whitespace is intentional.)
 
-#### Linux, OS X (Bash)
+#### Linux, macOS (Bash)
 
 ```bash
 HTTPS=true npm start
@@ -201,13 +223,38 @@ Since Create React App doesn’t support server rendering, you might be wonderin
 <!doctype html>
 <html lang="en">
   <head>
-    <meta property="og:title" content="%OG_TITLE%">
-    <meta property="og:description" content="%OG_DESCRIPTION%">
+    <meta property="og:title" content="__OG_TITLE__">
+    <meta property="og:description" content="__OG_DESCRIPTION__">
 ```
 
-Then, on the server, regardless of the backend you use, you can read `index.html` into memory and replace `%OG_TITLE%`, `%OG_DESCRIPTION%`, and any other placeholders with values depending on the current URL. Just make sure to sanitize and escape the interpolated values so that they are safe to embed into HTML!
+Then, on the server, regardless of the backend you use, you can read `index.html` into memory and replace `__OG_TITLE__`, `__OG_DESCRIPTION__`, and any other placeholders with values depending on the current URL. Just make sure to sanitize and escape the interpolated values so that they are safe to embed into HTML!
 
 If you use a Node server, you can even share the route matching logic between the client and the server. However duplicating it also works fine in simple cases.
+
+## Pre-Rendering into Static HTML Files
+
+If you’re hosting your `build` with a static hosting provider you can use [react-snapshot](https://www.npmjs.com/package/react-snapshot) to generate HTML pages for each route, or relative link, in your application. These pages will then seamlessly become active, or “hydrated”, when the JavaScript bundle has loaded.
+
+There are also opportunities to use this outside of static hosting, to take the pressure off the server when generating and caching routes.
+
+The primary benefit of pre-rendering is that you get the core content of each page _with_ the HTML payload—regardless of whether or not your JavaScript bundle successfully downloads. It also increases the likelihood that each route of your application will be picked up by search engines.
+
+You can read more about [zero-configuration pre-rendering (also called snapshotting) here](https://medium.com/superhighfives/an-almost-static-stack-6df0a2791319).
+
+## Injecting Data from the Server into the Page
+
+Similarly to the previous section, you can leave some placeholders in the HTML that inject global variables, for example:
+
+```js
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>
+      window.SERVER_DATA = __SERVER_DATA__;
+    </script>
+```
+
+Then, on the server, you can replace `__SERVER_DATA__` with a JSON of real data right before sending the response. The client code can then read `window.SERVER_DATA` to use it. **Make sure to [sanitize the JSON before sending it to the client](https://medium.com/node-security/the-most-common-xss-vulnerability-in-react-js-applications-2bdffbcc1fa0) as it makes your app vulnerable to XSS attacks.**
 
 ## Running Tests
 
@@ -265,8 +312,8 @@ it('sums numbers', () => {
 });
 ```
 
-All `expect()` matchers supported by Jest are [extensively documented here](http://facebook.github.io/jest/docs/api.html#expect-value).<br>
-You can also use [`jest.fn()` and `expect(fn).toBeCalled()`](http://facebook.github.io/jest/docs/api.html#tobecalled) to create “spies” or mock functions.
+All `expect()` matchers supported by Jest are [extensively documented here](http://facebook.github.io/jest/docs/expect.html).<br>
+You can also use [`jest.fn()` and `expect(fn).toBeCalled()`](http://facebook.github.io/jest/docs/expect.html#tohavebeencalled) to create “spies” or mock functions.
 
 ### Testing Components
 
@@ -324,8 +371,26 @@ it('renders welcome message', () => {
 });
 ```
 
-All Jest matchers are [extensively documented here](http://facebook.github.io/jest/docs/api.html#expect-value).<br>
+All Jest matchers are [extensively documented here](http://facebook.github.io/jest/docs/expect.html).<br>
 Nevertheless you can use a third-party assertion library like [Chai](http://chaijs.com/) if you want to, as described below.
+
+Additionally, you might find [jest-enzyme](https://github.com/blainekasten/enzyme-matchers) helpful to simplify your tests with readable matchers. The above `contains` code can be written simpler with jest-enzyme.
+
+```js
+expect(wrapper).toContainReact(welcome)
+```
+
+To setup jest-enzyme with Create React App, follow the instructions for [initializing your test environment](#initializing-test-environment) to import `jest-enzyme`.
+
+```sh
+npm install --save-dev jest-enzyme
+```
+
+```js
+// src/setupTests.js
+import 'jest-enzyme';
+```
+
 
 ### Using Third Party Assertion Libraries
 
@@ -413,7 +478,7 @@ set CI=true&&npm run build
 
 (Note: the lack of whitespace is intentional.)
 
-##### Linux, OS X (Bash)
+##### Linux, macOS (Bash)
 
 ```bash
 CI=true npm test
@@ -454,13 +519,11 @@ In contrast, **jsdom is not needed** for the following APIs:
 * [`TestUtils.createRenderer()`](https://facebook.github.io/react/docs/test-utils.html#shallow-rendering) (shallow rendering)
 * [`shallow()`](http://airbnb.io/enzyme/docs/api/shallow.html) in [Enzyme](http://airbnb.io/enzyme/index.html)
 
-Finally, jsdom is also not needed for [snapshot testing](http://facebook.github.io/jest/blog/2016/07/27/jest-14.html). Longer term, this is the direction we are interested in exploring, but snapshot testing is [not fully baked yet](https://github.com/facebookincubator/create-react-app/issues/372) so we don’t officially encourage its usage yet.
+Finally, jsdom is also not needed for [snapshot testing](http://facebook.github.io/jest/blog/2016/07/27/jest-14.html).
 
-### Experimental Snapshot Testing
+### Snapshot Testing
 
-Snapshot testing is a new feature of Jest that automatically generates text snapshots of your components and saves them on the disk so if the UI output changes, you get notified without manually writing any assertions on the component output.
-
-This feature is experimental and still [has major usage issues](https://github.com/facebookincubator/create-react-app/issues/372) so we only encourage you to use it if you like experimental technology. We intend to gradually improve it over time and eventually offer it as the default solution for testing React components, but this will take time. [Read more about snapshot testing.](http://facebook.github.io/jest/blog/2016/07/27/jest-14.html)
+Snapshot testing is a feature of Jest that automatically generates text snapshots of your components and saves them on the disk so if the UI output changes, you get notified without manually writing any assertions on the component output. [Read more about snapshot testing.](http://facebook.github.io/jest/blog/2016/07/27/jest-14.html)
 
 
 ## Making a Progressive Web App

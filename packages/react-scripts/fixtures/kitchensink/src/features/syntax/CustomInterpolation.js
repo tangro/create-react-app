@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component, PropTypes } from 'react'
 
 const styled = ([style]) => style.trim()
   .split(/\s*;\s*/)
@@ -14,16 +14,23 @@ function load() {
   ];
 }
 
-export default class extends React.Component {
+export default class extends Component {
+  static propTypes = {
+    onReady: PropTypes.func.isRequired
+  }
+
   constructor(props) {
     super(props);
-
     this.state = { users: [] };
   }
 
   async componentDidMount() {
     const users = load();
     this.setState({ users });
+  }
+
+  componentDidUpdate() {
+    this.props.onReady();
   }
 
   render() {

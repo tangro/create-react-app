@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Router, Route, IndexRoute, browserHistory } from 'react-router';
-import { createStore, applyMiddleware, compose } from 'redux';
-import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
+import { Router, Route, browserHistory } from 'react-router';
+// import { createStore, applyMiddleware, compose } from 'redux';
+// import { Provider } from 'react-redux';
+// import thunk from 'redux-thunk';
 
 import 'bootstrap/scss/bootstrap.scss';
 import 'font-awesome/scss/font-awesome.scss';
@@ -15,7 +15,7 @@ import './index.scss';
 
 // import { requireAuthentication, Login } from './login/authentication';
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+// const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 // const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)));
 
 /*

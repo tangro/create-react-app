@@ -108,7 +108,8 @@ module.exports = {
   module: {
     rules: [
       // Disable require.ensure as it's not a standard language feature.
-      { parser: { requireEnsure: false } },
+      // we need to enable it because styleguidist uses it
+      { parser: { requireEnsure: true } },
       // First, run the linter.
       // It's important to do this before Babel processes the JS.
       {
@@ -151,7 +152,7 @@ module.exports = {
       // Process JS with Babel.
       {
         test: /\.(js|jsx)$/,
-        include: [paths.appSrc,paths.appNodeModules],
+        include: [paths.appSrc,paths.appNodeModules + path.sep + 'Tangro-Stella'],
         loader: 'babel-loader',
         options: {
           // @remove-on-eject-begin
@@ -251,7 +252,7 @@ module.exports = {
     // See https://github.com/facebookincubator/create-react-app/issues/240
     new CaseSensitivePathsPlugin(),
     // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
-    new ExtractTextPlugin('static/css/[name].[contenthash:8].css'),
+    new ExtractTextPlugin('[name].[contenthash:8].css'),
     // If you require a missing module and then `npm install` it, you still have
     // to restart the development server for Webpack to discover it. This plugin
     // makes the discovery automatic so you don't have to restart.

@@ -44,7 +44,7 @@ if (env.stringified['process.env'].NODE_ENV !== '"production"') {
 }
 
 // Note: defined here because it will be used more than once.
-const cssFilename = 'static/css/[name].[contenthash:8].css';
+const cssFilename = '[name].[contenthash:8].css';
 
 // ExtractTextPlugin expects the build output to be flat.
 // (See https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/27)
@@ -112,7 +112,8 @@ module.exports = {
   module: {
     rules: [
       // Disable require.ensure as it's not a standard language feature.
-      { parser: { requireEnsure: false } },
+      // we need to enable it because styleguidist uses it
+      { parser: { requireEnsure: true } },
       // First, run the linter.
       // It's important to do this before Babel processes the JS.
       {
@@ -157,7 +158,7 @@ module.exports = {
       // Process JS with Babel.
       {
         test: /\.(js|jsx)$/,
-        include: [paths.appSrc,paths.appNodeModules],
+        include: [paths.appSrc,paths.appNodeModules + path.sep + 'Tangro-Stella'],
         loader: 'babel-loader',
         // @remove-on-eject-begin
         options: {

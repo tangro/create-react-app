@@ -13,18 +13,17 @@ var spawn = require('cross-spawn');
 var chalk = require('chalk');
 
 module.exports = function(appPath, appName, verbose, originalDirectory, template) {
-  var ownPackageName = require(path.join(__dirname, '..', 'package.json')).name;
+  var ownPackageJson = require(path.join(__dirname, '..', 'package.json'));
+  var ownPackageName = ownPackageJson.name;
+  var exportedDependencies = ownPackageJson.exportedDependencies;
   var ownPath = path.join(appPath, 'node_modules', ownPackageName);
   var appPackage = require(path.join(appPath, 'package.json'));
   var useYarn = fs.existsSync(path.join(appPath, 'yarn.lock'));
 
-  // Copy over some of the devDependencies
-  appPackage.dependencies = appPackage.dependencies || {};
-  appPackage.devDependencies = appPackage.devDependencies || {};
-
-  // ensure our installer dependencies are there
-  appPackage.dependencies = Object.assign({}, appPackage.dependencies, { "ini": "^1.3.4", "express": "^4.14.0" });
-  appPackage.optDependencies = { "node-windows": "^0.1.11" };
+  // Copy over exported dependencies
+  appPackage.dependencies = Object.assign({}, appPackage.dependencies, exportedDependencies.dependencies);
+  appPackage.devDependencies = Object.assign({}, appPackage.devDependencies, exportedDependencies.devDependencies);
+  appPackage.optDependencies = Object.assign({}, appPackage.optDependencies, exportedDependencies.optDependencies);
 
   // Setup the script rules
   appPackage.scripts = {
@@ -32,6 +31,7 @@ module.exports = function(appPath, appName, verbose, originalDirectory, template
     'build': 'react-scripts build',
     'test': 'react-scripts test --env=jsdom',
     'eject': 'react-scripts eject',
+    'update': 'react-scripts update',
     'buildinstaller': 'helper buildinstaller'
   };
 

@@ -152,7 +152,7 @@ module.exports = {
       // Process JS with Babel.
       {
         test: /\.(js|jsx)$/,
-        include: [paths.appSrc,paths.appNodeModules + path.sep + 'Tangro-Stella'],
+        include: [paths.appSrc,paths.appNodeModules + path.sep + 'tangro-stella'],
         loader: 'babel-loader',
         options: {
           // @remove-on-eject-begin

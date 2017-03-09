@@ -47,6 +47,9 @@ goto end
 
 :buildinstaller
 
+rem read name and version from ini file
+@node -p "var fs=require('fs');fs.writeFileSync('serviceConfig.ini',fs.readFileSync('serviceConfig.ini','utf8').replace(/version=.*/,'version='+require('./package.json').version))"
+
 SETLOCAL EnableDelayedExpansion
 SET INIFILE=serviceConfig.ini
 SET SECTION=none

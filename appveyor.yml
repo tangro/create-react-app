@@ -1,21 +1,23 @@
+image: Visual Studio 2017
+
 environment:
   matrix:
-    - nodejs_version: 6
+    - nodejs_version: 8
       test_suite: "simple"
-    - nodejs_version: 6
+    - nodejs_version: 8
       test_suite: "installs"
-    - nodejs_version: 6
+    - nodejs_version: 8
       test_suite: "kitchensink"
-    - nodejs_version: 4
+    - nodejs_version: 6
       test_suite: "simple"
-    - nodejs_version: 4
+    - nodejs_version: 6
       test_suite: "installs"
-    - nodejs_version: 4
+    - nodejs_version: 6
       test_suite: "kitchensink"
 
 cache:
-  - node_modules
-  - packages\react-scripts\node_modules
+  - node_modules -> appveyor.cleanup-cache.txt
+  - packages\react-scripts\node_modules -> appveyor.cleanup-cache.txt
 
 clone_depth: 50
 
@@ -30,7 +32,11 @@ install:
 
 build: off
 
+skip_commits:
+  files:
+    - '**/*.md'
+
 test_script:
   - node --version
   - npm --version
-  - sh tasks/e2e-%test_suite%.sh
+  - bash tasks/e2e-%test_suite%.sh

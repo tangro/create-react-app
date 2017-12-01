@@ -1,10 +1,8 @@
 #!/bin/bash
 # Copyright (c) 2015-present, Facebook, Inc.
-# All rights reserved.
 #
-# This source code is licensed under the BSD-style license found in the
-# LICENSE file in the root directory of this source tree. An additional grant
-# of patent rights can be found in the PATENTS file in the same directory.
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
 
 # ******************************************************************************
 # This creates an app with the global CLI and `react-scripts` from the source.
@@ -52,7 +50,7 @@ root_path=$PWD
 # ******************************************************************************
 
 # Install all our packages
-$root_path/node_modules/.bin/lerna bootstrap
+"$root_path"/node_modules/.bin/lerna bootstrap
 
 cd packages/react-scripts
 
@@ -61,10 +59,10 @@ cp package.json package.json.orig
 
 # Replace own dependencies (those in the `packages` dir) with the local paths
 # of those packages.
-node $root_path/tasks/replace-own-deps.js
+node "$root_path"/tasks/replace-own-deps.js
 
 # Finally, pack react-scripts
-scripts_path=$root_path/packages/react-scripts/`npm pack`
+scripts_path="$root_path"/packages/react-scripts/`npm pack`
 
 # Restore package.json
 rm package.json
@@ -79,8 +77,8 @@ mv package.json.orig package.json
 yarn cache clean || true
 
 # Go back to the root directory and run the command from here
-cd $root_path
-node packages/create-react-app/index.js --scripts-version=$scripts_path "$@"
+cd "$root_path"
+node packages/create-react-app/index.js --scripts-version="$scripts_path" "$@"
 
 # Cleanup
 cleanup

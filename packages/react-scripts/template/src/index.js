@@ -8,8 +8,9 @@ import { Router, Route, browserHistory } from 'react-router';
 import 'bootstrap/scss/bootstrap.scss';
 import 'font-awesome/scss/font-awesome.scss';
 
-import App from './App';
 import './index.scss';
+import App from './App';
+import registerServiceWorker from './registerServiceWorker';
 
 // import reducers from './store/reducers';
 
@@ -36,3 +37,4 @@ ReactDOM.render(
         </Router>,
     document.getElementById('root')
 );
+registerServiceWorker();

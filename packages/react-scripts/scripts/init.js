@@ -23,7 +23,7 @@ module.exports = function(appPath, appName, verbose, originalDirectory, template
   // Copy over exported dependencies
   appPackage.dependencies = Object.assign({}, appPackage.dependencies, exportedDependencies.dependencies);
   appPackage.devDependencies = Object.assign({}, appPackage.devDependencies, exportedDependencies.devDependencies);
-  appPackage.optDependencies = Object.assign({}, appPackage.optDependencies, exportedDependencies.optDependencies);
+  appPackage.optionalDependencies = Object.assign({}, appPackage.optionalDependencies, exportedDependencies.optionalDependencies);
 
   // Setup the script rules
   appPackage.scripts = {

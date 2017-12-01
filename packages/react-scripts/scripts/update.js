@@ -28,7 +28,7 @@ var JsDiff = require('diff');
   // Copy over some of the devDependencies
   appPackage.dependencies = Object.assign({}, appPackage.dependencies, exportedDependencies.dependencies);
   appPackage.devDependencies = Object.assign({}, appPackage.devDependencies, exportedDependencies.devDependencies);
-  appPackage.optDependencies = Object.assign({}, appPackage.optDependencies, exportedDependencies.optDependencies);
+  appPackage.optionalDependencies = Object.assign({}, appPackage.optionalDependencies, exportedDependencies.optionalDependencies);
 
   // Setup the script rules
   appPackage.scripts = {
@@ -44,7 +44,7 @@ var JsDiff = require('diff');
   var reference = {
       dependencies: currentPackage.dependencies,
       devDependencies: currentPackage.devDependencies,
-      optDependencies: currentPackage.optDependencies,
+      optionalDependencies: currentPackage.optionalDependencies,
       scripts: currentPackage.scripts
   };
 

@@ -150,7 +150,7 @@ module.exports = {
                 extends: [require.resolve('eslint-config-react-app')],
               },
               ignore: false,
-              configFile: path.join(__dirname, '../.eslintrc'),
+              configFile: path.join(paths.appPath, '.eslintrc'),
               useEslintrc: false,
               // @remove-on-eject-end
             },

@@ -21,6 +21,7 @@ const execSync = require('child_process').execSync;
 const spawn = require('react-dev-utils/crossSpawn');
 const { defaultBrowsers } = require('react-dev-utils/browsersHelper');
 const os = require('os');
+const verifyTypeScriptSetup = require('./utils/verifyTypeScriptSetup');
 
 function isInGitRepository() {
   try {
@@ -94,6 +95,8 @@ module.exports = function(
   appPackage.devDependencies = Object.assign({}, appPackage.devDependencies, exportedDependencies.devDependencies);
   appPackage.optionalDependencies = Object.assign({}, appPackage.optionalDependencies, exportedDependencies.optionalDependencies);
 
+  const useTypeScript = appPackage.dependencies['typescript'] != null;
+
   // Setup the script rules
   appPackage.scripts = {
     'start': 'react-scripts start',
@@ -128,7 +131,7 @@ module.exports = function(
   // Copy the files for the user
   const templatePath = template
     ? path.resolve(originalDirectory, template)
-    : path.join(ownPath, 'template');
+    : path.join(ownPath, useTypeScript ? 'template-typescript' : 'template');
   if (fs.existsSync(templatePath)) {
     fs.copySync(templatePath, appPath);
   } else {
@@ -218,6 +221,10 @@ module.exports = function(
   if (proc.status !== 0) {
       console.error('`' + command + ' ' + args.join(' ') + '` failed');
       return;
+  }
+
+  if (useTypeScript) {
+    verifyTypeScriptSetup();
   }
 
   if (tryGitInit(appPath)) {
